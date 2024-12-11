@@ -75,15 +75,20 @@ public class User {
         if (!membership) {
             return 0;
         }
-        int sum = 0;
-        for (GeneralPurchase generalPurchase : generalPurchases) {
-            sum += generalPurchase.getTotalPrice();
-        }
+        int sum = calculateSum();
         int membership = (int) (sum * 0.3);
         if (membership > 8000) {
             membership = 8000;
         }
         return membership;
+    }
+
+    private int calculateSum() {
+        int sum = 0;
+        for (GeneralPurchase generalPurchase : generalPurchases) {
+            sum += generalPurchase.getTotalPrice();
+        }
+        return sum;
     }
 
     private int calculateFinalPayment() {
@@ -96,6 +101,44 @@ public class User {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
+        addHeader(stringBuilder);
+        addProvide(stringBuilder);
+        addTotalPurchase(stringBuilder);
+        addPromotionDiscount(stringBuilder);
+        addMembershipDiscount(stringBuilder);
+        addFinalPayment(stringBuilder);
+        return stringBuilder.toString();
+    }
+
+    private void addFinalPayment(StringBuilder stringBuilder) {
+        stringBuilder.append("내실돈").append("\t\t").append(String.format("%,d", calculateFinalPayment())).append("\n");
+    }
+
+    private void addMembershipDiscount(StringBuilder stringBuilder) {
+        stringBuilder.append("멤버십할인").append("\t\t").append(String.format("-%,d", calculateMembershipDiscount()))
+                .append("\n");
+    }
+
+    private void addPromotionDiscount(StringBuilder stringBuilder) {
+        stringBuilder.append("행사할인").append("\t\t").append(String.format("-%,d", calculatePromotionDiscount()))
+                .append("\n");
+    }
+
+    private void addTotalPurchase(StringBuilder stringBuilder) {
+        stringBuilder.append("==============================\n");
+        stringBuilder.append("총구매액").append("\t\t").append(totalQuantity()).append("\t")
+                .append(String.format("%,d", totalPrice())).append("\n");
+    }
+
+    private void addProvide(StringBuilder stringBuilder) {
+        stringBuilder.append("===========증\t정=============\n");
+        for (PromotionPurchase promotionPurchase : promotionPurchases) {
+            stringBuilder.append(promotionPurchase.getName()).append("\t\t").append(promotionPurchase.calculateGet())
+                    .append("\n");
+        }
+    }
+
+    private void addHeader(StringBuilder stringBuilder) {
         stringBuilder.append("===========W 편의점=============\n");
         stringBuilder.append("상품명\t\t수량\t금액\n");
         for (PromotionPurchase promotionPurchase : promotionPurchases) {
@@ -104,20 +147,6 @@ public class User {
         for (GeneralPurchase generalPurchase : generalPurchases) {
             stringBuilder.append(generalPurchase.toString());
         }
-        stringBuilder.append("===========증\t정=============\n");
-        for (PromotionPurchase promotionPurchase : promotionPurchases) {
-            stringBuilder.append(promotionPurchase.getName()).append("\t\t").append(promotionPurchase.calculateGet())
-                    .append("\n");
-        }
-        stringBuilder.append("==============================\n");
-        stringBuilder.append("총구매액").append("\t\t").append(totalQuantity()).append("\t")
-                .append(String.format("%,d", totalPrice())).append("\n");
-        stringBuilder.append("행사할인").append("\t\t").append(String.format("-%,d", calculatePromotionDiscount()))
-                .append("\n");
-        stringBuilder.append("멤버십할인").append("\t\t").append(String.format("-%,d", calculateMembershipDiscount()))
-                .append("\n");
-        stringBuilder.append("내실돈").append("\t\t").append(String.format("%,d", calculateFinalPayment())).append("\n");
-        return stringBuilder.toString();
     }
 
 }
