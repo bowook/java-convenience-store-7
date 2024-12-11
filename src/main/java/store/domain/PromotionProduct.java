@@ -27,6 +27,10 @@ public class PromotionProduct {
         return false;
     }
 
+    public int getBuyAndGet() {
+        return promotion.getBuy() + promotion.getGet();
+    }
+
     public int calculateGet(int quantity) {
         int buyAndGet = promotion.getBuy() + promotion.getGet();
         return quantity / buyAndGet;
