@@ -24,6 +24,7 @@ public class StoreService {
         addProduct(loadFile("products.md"));
     }
 
+
     private void addProduct(List<String> products) {
         for (String product : products) {
             List<String> values = List.of(product.split(COMMA));
@@ -39,6 +40,7 @@ public class StoreService {
     private void addCaseProduct(String name, int price, int quantity, String value) {
         if (value.equals("null")) {
             this.products.addGeneralProduct(new GeneralProduct(name, price, quantity));
+            return;
         }
         this.products.addPromotionProduct(new PromotionProduct(name, price, quantity, promotions.findPromotion(value)));
     }
@@ -67,5 +69,9 @@ public class StoreService {
         } catch (IOException e) {
             throw new IllegalArgumentException(ErrorMessage.NO_FILE.getMessage());
         }
+    }
+
+    public Products getProducts() {
+        return products;
     }
 }
