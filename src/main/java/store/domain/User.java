@@ -17,6 +17,11 @@ public class User {
         this.membership = false;
     }
 
+    public void initUser() {
+        promotionPurchases.clear();
+        generalPurchases.clear();
+    }
+
     public void addPromotionPurchase(PromotionPurchase promotionPurchase) {
         this.promotionPurchases.add(promotionPurchase);
     }
