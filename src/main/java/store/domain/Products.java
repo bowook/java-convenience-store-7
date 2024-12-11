@@ -67,9 +67,15 @@ public class Products {
         generalProduct.subtractQuantity(quantity);
     }
 
+    public void subtractPromotionProduct(String productName, int quantity) {
+        PromotionProduct promotionProduct = findPromotionProduct(productName);
+        promotionProduct.subtractQuantity(quantity);
+    }
+
     public int subtractAllQuantity(String productName, int quantity, User user) {
         PromotionProduct promotionProduct = findPromotionProduct(productName);
-        int promotionProductQuantity = promotionProduct.getQuantity();
+        int promotionProductQuantity =
+                promotionProduct.calculateGet(promotionProduct.getQuantity()) * promotionProduct.getBuyAndGet();
         promotionProduct.subtractQuantity(promotionProductQuantity);
         user.addPromotionPurchase(new PromotionPurchase(promotionProduct, promotionProductQuantity));
         return quantity - promotionProductQuantity;
@@ -102,7 +108,7 @@ public class Products {
         return 0;
     }
 
-    private int findPromotionQuantity(String productName) {
+    public int findPromotionQuantity(String productName) {
         for (PromotionProduct promotionProduct : promotionProducts) {
             if (promotionProduct.getName().equals(productName)) {
                 return promotionProduct.getQuantity();
@@ -121,6 +127,12 @@ public class Products {
 
     private void promotionToString(StringBuilder stringBuilder) {
         for (PromotionProduct promotionProduct : promotionProducts) {
+            if (promotionProduct.getQuantity() == 0) {
+                String product = String.format("- %s %,d원 재고 없음%n", promotionProduct.getName(),
+                        promotionProduct.getPrice());
+                stringBuilder.append(product);
+                continue;
+            }
             String product = String.format("- %s %,d원 %d개 %s%n", promotionProduct.getName(),
                     promotionProduct.getPrice(), promotionProduct.getQuantity(), promotionProduct.getPromotionName());
             stringBuilder.append(product);
