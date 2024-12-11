@@ -126,17 +126,20 @@ public class Products {
     }
 
     private void promotionToString(StringBuilder stringBuilder) {
-        for (PromotionProduct promotionProduct : promotionProducts) {
-            if (promotionProduct.getQuantity() == 0) {
-                String product = String.format("- %s %,d원 재고 없음%n", promotionProduct.getName(),
-                        promotionProduct.getPrice());
+        for (PromotionProduct pr : promotionProducts) {
+            if (pr.getQuantity() == 0) {
+                String product = String.format("- %s %,d원 재고 없음%n", pr.getName(), pr.getPrice());
                 stringBuilder.append(product);
                 continue;
             }
-            String product = String.format("- %s %,d원 %d개 %s%n", promotionProduct.getName(),
-                    promotionProduct.getPrice(), promotionProduct.getQuantity(), promotionProduct.getPromotionName());
-            stringBuilder.append(product);
+            addPromotion(pr, stringBuilder);
         }
+    }
+
+    private void addPromotion(PromotionProduct pr, StringBuilder stringBuilder) {
+        String product = String.format("- %s %,d원 %d개 %s%n", pr.getName(), pr.getPrice(), pr.getQuantity(),
+                pr.getPromotionName());
+        stringBuilder.append(product);
     }
 
     private void generalToString(StringBuilder stringBuilder) {
