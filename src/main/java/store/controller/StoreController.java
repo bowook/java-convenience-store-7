@@ -50,8 +50,10 @@ public class StoreController {
         }
         if (products.isPromotionProduct(name) && !products.useOnlyPromotion(name, quantity)) {
             int remainQuantity = products.subtractAllQuantity(name, quantity, user);
-            if (readRemainQuantity(name, quantity).equals(Answer.YES)) {
-                products.subtractGeneralProduct(name, remainQuantity);
+            if (readRemainQuantity(name, remainQuantity).equals(Answer.YES)) {
+                int remainPromotion = products.findPromotionQuantity(name);
+                products.subtractPromotionProduct(name, remainPromotion);
+                products.subtractGeneralProduct(name, remainQuantity - remainPromotion);
                 user.addRemainProduct(products.findGeneralProduct(name), remainQuantity);
             }
             return;
@@ -93,6 +95,7 @@ public class StoreController {
     private Answer readRetry() {
         while (true) {
             try {
+                user.initUser();
                 return inputView.readRetry();
             } catch (CustomException customException) {
                 outputView.writeErrorMessage(customException.getMessage());
