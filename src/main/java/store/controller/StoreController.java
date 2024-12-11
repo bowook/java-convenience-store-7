@@ -27,39 +27,54 @@ public class StoreController {
         do {
             Products products = storeService.getProducts();
             outputView.writeWelcome(products);
-            List<String> purchaseItems = readPurchaseItems(products);
-            for (String purchaseItem : purchaseItems) {
-                List<String> itemValues = List.of(purchaseItem.split("-"));
-                String name = itemValues.get(0);
-                int quantity = Integer.parseInt(itemValues.get(1));
-                checkPromotion(name, quantity, products);
-            }
+            purchaseItem(products);
             user.checkMembership(readMembership());
             outputView.writeReceipt(user);
             answer = readRetry();
         } while (answer.equals(Answer.YES));
     }
 
+    private void purchaseItem(Products products) {
+        for (String purchaseItem : readPurchaseItems(products)) {
+            List<String> itemValues = List.of(purchaseItem.split("-"));
+            String name = itemValues.get(0);
+            int quantity = Integer.parseInt(itemValues.get(1));
+            checkPromotion(name, quantity, products);
+        }
+    }
+
     private void checkPromotion(String name, int quantity, Products products) {
         if (products.isPromotionProduct(name) && products.useOnlyPromotion(name, quantity)) {
-            if (products.checkOneMorePromotion(name, quantity, user) && readAnswer(name).equals(Answer.YES)) {
-                products.subtractOneMore(name);
-                user.addOneMore(name);
-            }
+            checkPromotionAndOnlyPromotion(name, quantity, products);
             return;
         }
         if (products.isPromotionProduct(name) && !products.useOnlyPromotion(name, quantity)) {
-            int remainQuantity = products.subtractAllQuantity(name, quantity, user);
-            if (readRemainQuantity(name, remainQuantity).equals(Answer.YES)) {
-                int remainPromotion = products.findPromotionQuantity(name);
-                products.subtractPromotionProduct(name, remainPromotion);
-                products.subtractGeneralProduct(name, remainQuantity - remainPromotion);
-                user.addRemainProduct(products.findGeneralProduct(name), remainQuantity);
-            }
+            checkPromotionAndUseGeneral(name, quantity, products);
             return;
         }
+        checkOnlyGeneral(name, quantity, products);
+    }
+
+    private void checkOnlyGeneral(String name, int quantity, Products products) {
         products.subtractGeneralProduct(name, quantity);
         user.addRemainProduct(products.findGeneralProduct(name), quantity);
+    }
+
+    private void checkPromotionAndUseGeneral(String name, int quantity, Products products) {
+        int remainQuantity = products.subtractAllQuantity(name, quantity, user);
+        if (readRemainQuantity(name, remainQuantity).equals(Answer.YES)) {
+            int remainPromotion = products.findPromotionQuantity(name);
+            products.subtractPromotionProduct(name, remainPromotion);
+            products.subtractGeneralProduct(name, remainQuantity - remainPromotion);
+            user.addRemainProduct(products.findGeneralProduct(name), remainQuantity);
+        }
+    }
+
+    private void checkPromotionAndOnlyPromotion(String name, int quantity, Products products) {
+        if (products.checkOneMorePromotion(name, quantity, user) && readAnswer(name).equals(Answer.YES)) {
+            products.subtractOneMore(name);
+            user.addOneMore(name);
+        }
     }
 
     private Answer readMembership() {
